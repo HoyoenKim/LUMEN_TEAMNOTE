@@ -29,6 +29,6 @@
 
 4. DynamicProgramming.cpp
 // DONE
-// TWO POINTER, Kruth's Optimization,
+// TWO POINTER, Knapsack, Kruth's Optimization
 // TODO
 // .....

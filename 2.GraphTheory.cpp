@@ -569,6 +569,20 @@ int LeastCommonAncenstor() {
     }    
 }
 
+// 1 -> 2 -> 3 -> 1
+// 3 -> 4 -> 5
+// 5 <-> 6
+// 5 <-> 7
+
+// stack parent
+//  7     5
+//  6     5
+//  5     5
+//  4     4
+//  3     1
+//  2     1
+//  1     1
+
 std::vector<std::vector<int>> scc;
 int id = 0;
 
@@ -609,7 +623,7 @@ bool compare3(std::vector<int> a, std::vector<int> b) {
     return a[0] < b[0];
 }
 
-int SCC() {
+int StronglyConnectedComponent() {
     int n, m;
     std::cin >> n >> m;
     std::vector<std::vector<int>> graph(n + 1);
