@@ -46,31 +46,27 @@ int Knapsack() {
     int n, k;
     std::cin >> n >> k;
 
-    std::vector<std::vector<int>> array(n, std::vector<int>(2)); //weight, value
+    std::vector<int> w(n, 0);
+    std::vector<int> v(n, 0);
     for(int i = 0 ; i < n ; i++) {
-        std::cin >> array[i][0] >> array[i][1];
+        std::cin >> w[i] >> v[i];
     }
 
-    std::vector<std::vector<int>> optimal(n + 1, std::vector<int>(k + 1, 0));
+    std::vector<std::vector<int>> dp(k + 1, std::vector<int>(n, 0));
+    // 가방의 크기가 i 일 때, j 번째 물건까지 담을 수 있는 경우 최대 가치
 
-    for(int i = 0 ; i <= n ; i++) {
-        for(int j = 0 ; j <= k ; j++) {
-            if(i == 0 || j == 0) {
-                optimal[i][j] = 0;
+    for(int i = 1 ; i <= k ; i ++) {
+        for(int j = 0 ; j < n ; j++) {
+            if(i >= w[j]) {
+                dp[i][j] = std::max(dp[i][j - 1], dp[i - w[j]][j - 1] + v[j]);
             }
-            else {
-                if(j >= array[i - 1][0]) {
-                    optimal[i][j] = std::max(optimal[i - 1][j], optimal[i - 1][j - array[i - 1][0]] + array[i - 1][1]);
-                }
-                else {
-                    optimal[i][j] = optimal[i - 1][j];
-                }
+            else{
+                dp[i][j] = dp[i][j - 1];
             }
+            
         }
     }
-
-    std::cout << optimal[n][k] << "\n";
-    
+    std::cout << dp[k][n - 1] << "\n";
 }
 
 int Kruth() {
@@ -133,5 +129,106 @@ int Kruth() {
         }
         std::cout << dp[0][n] << "\n";
     }
+}
+int n;
+std::vector<std::vector<int>> p2w(20, std::vector<int>(20, 0));
+std::vector<std::vector<int>> dp(20, std::vector<int>(1 << 20, -1)); 
+// i - 1 번째 사람까지 일이 할당 되었고, 그 일의 할당 배열은 j와 같다.
+// j의 k 번째 비트가 1이면 k 번째 일이 할당 된 것이다.
+
+int dfs(int x, int allocated) {
+    if(allocated == ((1 << n) - 1)) {
+        // 모든 일이 할당 됨.
+        return 0;
+    }
+    if(dp[x][allocated] == -1) {
+        dp[x][allocated] = INT32_MAX;
+        for(int i = 0 ; i < n ; i++) {
+            if((allocated & (1 << i)) == 0) {
+                dp[x][allocated] = std::min(dp[x][allocated], dfs(x + 1, (allocated | (1 << i))) + p2w[x][i]);
+            }
+        }
+    }
+    return dp[x][allocated];
+}
+
+int bitSet() {
+    std::cin >> n;    
+    for(int i = 0 ; i < n ; i++) {
+        for(int j = 0 ; j < n ; j++) {
+            std::cin >> p2w[i][j];
+        }
+    }
+    std::cout << dfs(0, 0) << "\n";
+}
+
+int panlinedrom() {
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(NULL);
+    std::cout.tie(NULL);
+
+    int n;
+    std::cin >> n;
+    std::vector<int> a(n, 0);
+    for(int i = 0 ; i < n ; i++) {
+        std::cin >> a[i];
+    }
+
+    std::vector<std::vector<int>> dp(n, std::vector<int>(n, 0));
+    // dp[i][j] = i 부터 j 까지 펠린드롬인지 아닌지
+    // dp[i][j] = dp[i + 1][j - 1] && a[i] == a[j]
+
+    for(int i = 0 ; i < n ; i++) {
+        dp[i][i] = 1;
+        if(i != n - 1) {
+            if(a[i] == a[i + 1]) {
+                dp[i][i + 1] = 1;
+            }
+        }
+    }
+
+    for(int i = n - 1 ; i >= 0 ; i--) {
+        for(int j = i + 2 ; j < n ; j++) {
+            if(a[i] == a[j] && dp[i + 1][j - 1] == 1) {
+                dp[i][j] = 1;
+            }
+        }
+    }
+    int m;
+    std::cin >> m;
+    for(int i = 0 ; i < m ; i++) {
+        int a, b;
+        std::cin >> a >> b;
+        std::cout << dp[a - 1][b - 1] << "\n";
+    }
 
 }
+
+/*
+1. Convex Hull Op
+dp[i] = Min(dp[j] + A[i] * B[j]) (j < i)
+
+2. Divide and Conquer Op
+dp[i][j] = Min(dp[i - 1][k] + C[k][j]) (k < j)
+
+3. Monotone Queue Op
+dp[i] = Min(dp[j] + C[j][i]) (j < i)
+
+4. Knuth's Op
+dp[i][j] = Min(dp[i][k] + dp[k + 1][j] + C[i][j]) (i <= k < j)
+
+5. Aliens Trick
+dp[i][j] = Min(dp[i - 1][k] + C[k + 1][j]) (k < j)
+
+6. Slope Trick
+
+7. Hirschburg's Algorithm
+dp[i][j] = min(dp[i - 1][j], dp[i][j - 1]) + C[i][j] (LCS)
+
+8. Circular LCS
+BitSet 활용
+
+9. Dynamic Tree DP
+세그먼트 트리
+dp[i][j] = min(dp[i - 1][k] + C[i][k][j]) for all k
+*/
